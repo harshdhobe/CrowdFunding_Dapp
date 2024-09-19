@@ -10,6 +10,23 @@ contract CrowdFunding {
     uint public receivedAmount;
 
      event donated(address indexed donar, uint indexed amount, uint indexed timestamp);
+
+      constructor(
+        string memory campaignTitle, 
+        uint requiredCampaignAmount, 
+        string memory imgURI,
+        string memory storyURI,
+        address campaignOwner
+    ) {
+        title = campaignTitle;
+        requiredAmount = requiredCampaignAmount;
+        image = imgURI;
+        story = storyURI;
+        owner = payable(campaignOwner);
+    }
+
+
+    
    
     
 
