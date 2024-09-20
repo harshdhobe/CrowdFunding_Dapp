@@ -2,35 +2,60 @@
 pragma solidity ^0.8.24;
 
 contract CrowdFunding {
-     string public title;
-    uint public requiredAmount;
-    string public image;
-    string public story;
-    address payable public owner;
-    uint public receivedAmount;
+    struct Campaign{
+        address owner;
+        string title;
+        string description;
+        uint target;
+        uint deadline;
+        string image;
+        uint amountCollected;
+        address[] donators;
+        uint [] donations;
+    }
+     
+     mapping (uint =>Campaign) campaigns;
+    uint public numberOfCampaigns=0;
+    
+    function createCampaign(address _owner,
+    string memory _title,
+    string memory _description,
+    uint _target,
+    uint _deadline,
+    string memory _image
+    ) public returns(uint256) {
+        Campaign storage campaign=campaigns[numberOfCampaigns];
 
-     event donated(address indexed donar, uint indexed amount, uint indexed timestamp);
+        require(Campaign.deadline < block.timestamp, "deadline should be in future");
 
-      constructor(
-        string memory campaignTitle, 
-        uint requiredCampaignAmount, 
-        string memory imgURI,
-        string memory storyURI,
-        address campaignOwner
-    ) {
-        title = campaignTitle;
-        requiredAmount = requiredCampaignAmount;
-        image = imgURI;
-        story = storyURI;
-        owner = payable(campaignOwner);
+        campaign.owner = _owner;
+        campaign.title = _title;
+        campaign.description = _description;
+        campaign.target = _target;
+        campaign.deadline = _deadline;
+        campaign.amountCollected = 0;
+        campaign.image = _image;
+
+        numberOfCampaigns++;
+        return numberOfCampaigns - 1;
+        
     }
 
-function donate() public payable {
-        require(requiredAmount > receivedAmount, "required amount fullfilled");
-        owner.transfer(msg.value);
-        receivedAmount += msg.value;
-        emit donated(msg.sender, msg.value, block.timestamp);
+    function donateToCampaign(uint _id)public payable {
+        uint amount=msg.value;
+
+        (bool sent, )=payable(Campaign.owner).call{value:amount}("");
+
+        if(sent){
+            Campaign.amountCollected= Campaign.amountCollected+amount;
+        }
+
+        Campaign.donators.push(msg.sender);
+        Campaign.donations.push(amount);
+        
     }
+
+   
 
     
    
